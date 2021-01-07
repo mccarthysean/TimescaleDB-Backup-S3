@@ -26,7 +26,7 @@ services:
         condition: on-failure
 
   backup:
-    # image: mccarthysean/timescaledb_backup_s3:11
+    # Choose 11 as the tag for TimescaleDB/PostgreSQL version 11, instead of 12
     image: mccarthysean/timescaledb_backup_s3:12
     env_file: .env
     environment:
