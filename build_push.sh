@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# This file builds the images and pushes them to Docker Hub.
+# Set the TAG_VERSION environment variable below
+
+TAG_VERSION=1.0.1
+
 PS3='Enter 1-2 for PostgreSQL/TimescaleDB version to build and push to Docker Hub: '
 options=(
     "PostgreSQL/TimescaleDB Version 11"
@@ -22,14 +27,17 @@ done
 
 echo ""
 echo "Building the version '$VERSION' image locally..."
-echo "docker-compose -f docker-compose.build.yml build"
-docker-compose -f docker-compose.build.yml build
+docker build \
+    -t mccarthysean/timescaledb_backup_s3:latest-$VERSION \
+    -t mccarthysean/timescaledb_backup_s3:$VERSION-$TAG_VERSION \
+    --build-args VERSION=$VERSION \
+    .
 
-# Push to Docker Hub
+# Push to Docker Hub (must have Docker version ^20 to use --all-tags)
 # docker login --username=mccarthysean
 echo ""
-echo "Pushing the version '$VERSION' image to Docker Hub..."
-echo "docker push mccarthysean/timescaledb_backup_s3:$VERSION"
-docker push mccarthysean/timescaledb_backup_s3:$VERSION
+echo "Pushing the version '$VERSION' image to Docker Hub with all tags..."
+echo "docker push --all-tags mccarthysean/timescaledb_backup_s3"
+docker push --all-tags mccarthysean/timescaledb_backup_s3
 
 exit 0
