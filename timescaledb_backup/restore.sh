@@ -44,6 +44,10 @@ psql -h $PGHOST -p $PGPORT -U $PGUSER --dbname $PGDATABASE --command 'SELECT tim
 # pg_restore [connection-option...] [option...] [filename]
 pg_restore -h $PGHOST -p $PGPORT -U $PGUSER --dbname $PGDATABASE $POSTGRES_RESTORE_EXTRA_OPTS ${PGDATABASE}.bak
 
+# wait for pg_restore to complete before running the 'SELECT timescaledb_post_restore();' query below
+echo "Waiting for pg_restore to finish before running 'SELECT timescaledb_post_restore();' to wrap things up..."
+wait
+
 # Restoring data from a backup currently requires some additional procedures, which need to be run from psql
 # psql [option...] [dbname [username]]
 # --dbname is equivalent to specifying dbname as the first non-option argument on the command line
