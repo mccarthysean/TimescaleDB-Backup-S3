@@ -1,11 +1,12 @@
-FROM postgres:11-alpine
+ARG VERSION
+FROM postgres:${VERSION}-alpine
 
 LABEL maintainer="Sean McCarthy <sean.mccarthy@live.ca>"
 
 # Install the AWS CLI Python program, and go-crontab,
 # in the PostgreSQL 12 Alpine Linux container
-COPY install_aws_cli_and_go_cron.sh install_aws_cli_and_go_cron.sh
-RUN sh install_aws_cli_and_go_cron.sh && rm install_aws_cli_and_go_cron.sh
+COPY install_aws_cli.sh install_aws_cli.sh
+RUN sh install_aws_cli.sh
 
 # Set some default environment variables
 # We'll override these with Docker-Compose and in the .env file
@@ -30,8 +31,8 @@ COPY backup.sh backup.sh
 # restore.sh will restore a database from a backup file,
 # which has been downloaded from AWS S3 and renamed "postgres.bak"
 COPY restore.sh restore.sh
-# run_or_schedule_backup.sh schedules the backup with cron, 
-# with the following command: 'exec go-cron "$SCHEDULE" /bin/sh backup.sh'
+
+# run_or_schedule_backup.sh schedules the backup with cron
 COPY run_or_schedule_backup.sh run_or_schedule_backup.sh
 
 # Schedule crontab when the container starts.

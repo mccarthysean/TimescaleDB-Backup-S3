@@ -2,9 +2,11 @@ version: '3.7'
 services:
   backup:
     # Name and tag of image the Dockerfile creates
-    image: mccarthysean/timescaledb_backup_s3:12
+    image: mccarthysean/timescaledb_backup_s3:$VERSION
     build:
       # context: where should docker-compose look for the Dockerfile?
       # i.e. either a path to a directory containing a Dockerfile, or a url to a git repository
-      context: ./timescaledb_backup
-      dockerfile: Dockerfile.timescaledb_backup12
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VERSION: $VERSION

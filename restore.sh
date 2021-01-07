@@ -42,7 +42,7 @@ psql -h $PGHOST -p $PGPORT -U $PGUSER --dbname $PGDATABASE --command 'CREATE EXT
 psql -h $PGHOST -p $PGPORT -U $PGUSER --dbname $PGDATABASE --command 'SELECT timescaledb_pre_restore();'
 
 # pg_restore [connection-option...] [option...] [filename]
-# Added || true so the following line returns an error code of 0, since we need the line after to run regardless
+# Added || true so the following line returns an error code of 0, since we need the line after this one to run regardless
 pg_restore -h $PGHOST -p $PGPORT -U $PGUSER --dbname $PGDATABASE $POSTGRES_RESTORE_EXTRA_OPTS ${PGDATABASE}.bak || true
 
 # Restoring data from a backup currently requires some additional procedures, which need to be run from psql

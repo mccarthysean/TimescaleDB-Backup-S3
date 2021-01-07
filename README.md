@@ -16,9 +16,6 @@ See the docker-compose.example.yml file for typical usage, like below:
     env_file: .env
     environment:
       # Schedule this backup job to backup and upload to AWS S3 every so often
-      SCHEDULE: '@daily' # or possibly '@every 1h'
-      # Or use a more specific/flexible cron-type schedule:
-      # SCHEDULE: '0 7 * * *'
       # * * * * * command(s)
       # - - - - -
       # | | | | |
@@ -27,6 +24,7 @@ See the docker-compose.example.yml file for typical usage, like below:
       # | | --------- Day of month (1 - 31)
       # | ----------- Hour (0 - 23)
       # ------------- Minute (0 - 59)
+      SCHEDULE: '0 7 * * *'
       # The AWS S3 bucket to which the backup file should be uploaded
       S3_BUCKET: backup-timescaledb
       # S3_PREFIX creates a sub-folder in the above AWS S3 bucket
@@ -45,6 +43,7 @@ See the docker-compose.example.yml file for typical usage, like below:
       traefik-public:
     healthcheck:
       # Periodically check if PostgreSQL is ready, for Docker status reporting
+      # NOTE: this only works on PostgreSQL version 12, not 11
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 60s
       timeout: 5s
@@ -81,8 +80,6 @@ POSTGRES_PASSWORD=password
 ```
 ### Automatic Periodic Backups
 
-Set the `SCHEDULE` environment variable like `-e SCHEDULE="@daily"` to run the backup automatically.
-
-More information about scheduling can be found [here](http://godoc.org/github.com/robfig/cron#hdr-Predefined_schedules).
+Set the cron `SCHEDULE` environment variable like `-e SCHEDULE="0 0 * * *"` to run the backup automatically.
 
 -Sean

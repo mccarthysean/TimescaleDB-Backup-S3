@@ -2,7 +2,7 @@ version: '3.7'
 services:
   timescale:
     # Name of the image and tag the Dockerfile creates
-    image: timescale/timescaledb:latest-pg11
+    image: timescale/timescaledb:latest-pg12
     volumes: 
       - type: volume
         source: timescale-db # the volume name
@@ -42,7 +42,6 @@ services:
     env_file: .env
     environment:
       # Schedule this backup job to backup and upload to AWS S3 every so often
-      # SCHEDULE: '@daily' # or possibly '@every 1h'
       # * * * * * command(s)
       # - - - - -
       # | | | | |
@@ -73,6 +72,7 @@ services:
       traefik-public:
     healthcheck:
       # Periodically check if PostgreSQL is ready, for Docker status reporting
+      # NOTE: this only works on PostgreSQL version 12, not 11
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 60s
       timeout: 5s
