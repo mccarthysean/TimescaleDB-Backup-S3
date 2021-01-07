@@ -24,6 +24,7 @@ ENV AWS_DEFAULT_REGION **None**
 ENV S3_ENDPOINT **None**
 ENV S3_S3V4 no
 ENV SCHEDULE **None**
+ENV EDITOR nano
 
 # Add a few more files to the container
 # backup.sh actually runs the backup, and then uploads it to an AWS S3 bucket

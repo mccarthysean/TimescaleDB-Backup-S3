@@ -8,7 +8,7 @@ set -e
 
 # Install AWS command line interface for S3 uploading
 apk update
-apk add python3 py3-pip
+apk add python3 py3-pip nano
 pip3 install awscli six
 
 # # Install go-cron
