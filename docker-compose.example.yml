@@ -1,0 +1,61 @@
+version: '3.7'
+services:
+  timescale:
+    # Name of the image and tag the Dockerfile creates
+    image: timescale/timescaledb:latest-pg11
+    volumes: 
+      - type: volume
+        source: timescale-db # the volume name
+        target: /var/lib/postgresql/data # the location in the container where the data are stored
+        read_only: false
+      # Custom postgresql.conf file will be mounted (see command: as well)
+      - type: bind
+        source: ./postgresql_custom.conf
+        target: /postgresql_custom.conf
+        read_only: false
+    env_file: .env
+    environment:
+      PGHOST: timescale
+    command: ["-c", "config_file=/postgresql_custom.conf"]
+    ports: 
+      - 0.0.0.0:5432:5432
+    networks:
+      traefik-public:
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  backup:
+    # image: mccarthysean/timescaledb_backup_s3:11
+    image: mccarthysean/timescaledb_backup_s3:12
+    env_file: .env
+    environment:
+      # Schedule this backup job to backup and upload to AWS S3 every so often
+      SCHEDULE: '@daily' # or possibly '@every 1h'
+      # The AWS S3 bucket to which the backup file should be uploaded
+      S3_BUCKET: backup-timescaledb
+      # S3_PREFIX creates a sub-folder in the above AWS S3 bucket
+      S3_PREFIX: daily-backups
+      # EXTRA OPTIONS #######################################################################
+      # --format custom outputs to a custom-format archive suitable for input into pg_restore
+      # Together with the directory output format, this is the most flexible output format
+      # in that it allows manual selection and reordering of archived items during restore.
+      # This format is also compressed by default
+      # "--create --clean" drops the database and recreates it
+      # --if-exists adds "IF EXISTS" to the SQL where appropriate
+      # --blobs includes large objects in the dump
+      POSTGRES_BACKUP_EXTRA_OPTS: '--format custom --create --clean --if-exists --blobs'
+      POSTGRES_RESTORE_EXTRA_OPTS: '--format custom --create --clean --if-exists --jobs 2'
+    networks:
+      traefik-public:
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+# Creates a named volume to persist the TimescaleDB data
+volumes:
+  timescale-db:
+
+networks:
+  traefik-public:
+    external: true
