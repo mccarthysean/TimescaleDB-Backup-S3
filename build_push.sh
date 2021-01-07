@@ -30,7 +30,7 @@ echo "Building the version '$VERSION' image locally..."
 docker build \
     -t mccarthysean/timescaledb_backup_s3:latest-$VERSION \
     -t mccarthysean/timescaledb_backup_s3:$VERSION-$TAG_VERSION \
-    --build-args VERSION=$VERSION \
+    --build-arg VERSION=$VERSION \
     .
 
 # Push to Docker Hub (must have Docker version ^20 to use --all-tags)
