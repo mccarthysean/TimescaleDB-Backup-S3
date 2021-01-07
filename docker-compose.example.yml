@@ -53,8 +53,11 @@ services:
       # "--create --clean" drops the database and recreates it
       # --if-exists adds "IF EXISTS" to the SQL where appropriate
       # --blobs includes large objects in the dump
+      # --disable-triggers instructs pg_restore to execute commands to temporarily disable triggers
+      # on the target tables while the data is reloaded. Use this if you have referential integrity
+      # checks or other triggers on the tables that you do not want to invoke during data reload
       POSTGRES_BACKUP_EXTRA_OPTS: '--format custom --create --clean --if-exists --blobs'
-      POSTGRES_RESTORE_EXTRA_OPTS: '--format custom --create --clean --if-exists --jobs 2'
+      POSTGRES_RESTORE_EXTRA_OPTS: '--format custom --create --clean --if-exists --jobs 2 --disable-triggers'
     networks:
       traefik-public:
     deploy:
