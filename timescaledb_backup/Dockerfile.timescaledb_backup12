@@ -2,10 +2,10 @@ FROM postgres:12-alpine
 
 LABEL maintainer="Sean McCarthy <sean.mccarthy@live.ca>"
 
-# Install the AWS CLI Python program, and crontab,
+# Install the AWS CLI Python program, and go-crontab,
 # in the PostgreSQL 12 Alpine Linux container
-COPY install_aws_cli.sh install_aws_cli.sh
-RUN sh install_aws_cli.sh && rm install_aws_cli.sh
+COPY install_aws_cli_and_go_cron.sh install_aws_cli_and_go_cron.sh
+RUN sh install_aws_cli_and_go_cron.sh && rm install_aws_cli_and_go_cron.sh
 
 # Set some default environment variables
 # We'll override these with Docker-Compose and in the .env file
