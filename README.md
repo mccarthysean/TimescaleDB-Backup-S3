@@ -43,7 +43,18 @@ See the docker-compose.example.yml file for typical usage, like below:
       POSTGRES_RESTORE_EXTRA_OPTS: '--format custom --create --clean --if-exists --jobs 2'
     networks:
       traefik-public:
+    healthcheck:
+      # Periodically check if PostgreSQL is ready, for Docker status reporting
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 60s
+      timeout: 5s
+      retries: 5
     deploy:
+      placement:
+        constraints:
+          # Since this is for the stateful database,
+          # only run it on the swarm manager, not on workers
+          - "node.role==manager"
       restart_policy:
         condition: on-failure
 ```
