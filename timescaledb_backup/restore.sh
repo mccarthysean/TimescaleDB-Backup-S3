@@ -42,11 +42,8 @@ psql -h $PGHOST -p $PGPORT -U $PGUSER --dbname $PGDATABASE --command 'CREATE EXT
 psql -h $PGHOST -p $PGPORT -U $PGUSER --dbname $PGDATABASE --command 'SELECT timescaledb_pre_restore();'
 
 # pg_restore [connection-option...] [option...] [filename]
-pg_restore -h $PGHOST -p $PGPORT -U $PGUSER --dbname $PGDATABASE $POSTGRES_RESTORE_EXTRA_OPTS ${PGDATABASE}.bak
-
-# wait for pg_restore to complete before running the 'SELECT timescaledb_post_restore();' query below
-echo "Waiting for pg_restore to finish before running 'SELECT timescaledb_post_restore();' to wrap things up..."
-wait
+# Added || true so the following line returns an error code of 0, since we need the line after to run regardless
+pg_restore -h $PGHOST -p $PGPORT -U $PGUSER --dbname $PGDATABASE $POSTGRES_RESTORE_EXTRA_OPTS ${PGDATABASE}.bak || true
 
 # Restoring data from a backup currently requires some additional procedures, which need to be run from psql
 # psql [option...] [dbname [username]]
