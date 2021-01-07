@@ -17,6 +17,16 @@ See the docker-compose.example.yml file for typical usage, like below:
     environment:
       # Schedule this backup job to backup and upload to AWS S3 every so often
       SCHEDULE: '@daily' # or possibly '@every 1h'
+      # Or use a more specific/flexible cron-type schedule:
+      # SCHEDULE: '0 7 * * *'
+      # * * * * * command(s)
+      # - - - - -
+      # | | | | |
+      # | | | | ----- Day of week (0 - 7) (Sunday=0 or 7)
+      # | | | ------- Month (1 - 12)
+      # | | --------- Day of month (1 - 31)
+      # | ----------- Hour (0 - 23)
+      # ------------- Minute (0 - 59)
       # The AWS S3 bucket to which the backup file should be uploaded
       S3_BUCKET: backup-timescaledb
       # S3_PREFIX creates a sub-folder in the above AWS S3 bucket
