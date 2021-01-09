@@ -68,6 +68,3 @@ COPY restore_ts.sh restore_ts.sh
 
 # run_or_schedule_backup.sh schedules the backup with cron
 COPY run_or_schedule_backup.sh run_or_schedule_backup.sh
-
-# Schedule crontab when the container starts.
-CMD ["sh", "run_or_schedule_backup.sh"]
