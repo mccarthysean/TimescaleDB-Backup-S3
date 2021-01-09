@@ -3,7 +3,7 @@
 # This file builds the images and pushes them to Docker Hub.
 # Set the TAG_VERSION environment variable below
 
-TAG_VERSION=1.0.2
+TAG_VERSION=1.0.3
 
 PS3='Enter 1-2 for PostgreSQL/TimescaleDB version to build and push to Docker Hub: '
 options=(

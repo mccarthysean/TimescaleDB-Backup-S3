@@ -15,7 +15,7 @@ services:
         read_only: false
     env_file: .env
     environment:
-      PGHOST: timescale
+      POSTGRES_HOST: timescale
     command: ["-c", "config_file=/postgresql_custom.conf"]
     ports: 
       - 0.0.0.0:5432:5432
@@ -23,6 +23,7 @@ services:
       traefik-public:
     healthcheck:
       # Periodically check if PostgreSQL is ready, for Docker status reporting
+      # NOTE: this only works on PostgreSQL version 12, not 11
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 60s
       timeout: 5s
@@ -71,9 +72,9 @@ services:
     networks:
       traefik-public:
     healthcheck:
-      # Periodically check if PostgreSQL is ready, for Docker status reporting
-      # NOTE: this only works on PostgreSQL version 12, not 11
-      test: ["CMD", "pg_isready", "-U", "postgres"]
+      # Periodically check if PostgreSQL is ready in the other container,
+      # for Docker status reporting. If we can't reach it, we can't back it up.
+      test: ["ping", "timescale"]
       interval: 60s
       timeout: 5s
       retries: 5

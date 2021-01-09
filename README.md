@@ -5,7 +5,7 @@ For creating a Docker image that runs alongside the TimescaleDB container. It us
 
 Docker:
 ```sh
-$ docker run -e AWS_ACCESS_KEY_ID=key -e AWS_SECRET_ACCESS_KEY=secret -e AWS_BUCKET=my-bucket -e AWS_DEFAULT_REGION=us-west-2 -e S3_PREFIX=subfolder -e PGDATABASE=dbname -e PGUSER=user -e PGPASSWORD=password -e PGHOST=localhost mccarthysean/timescaledb_backup_s3:12
+$ docker run -e AWS_ACCESS_KEY_ID=key -e AWS_SECRET_ACCESS_KEY=secret -e AWS_BUCKET=my-bucket -e AWS_DEFAULT_REGION=us-west-2 -e S3_PREFIX=subfolder -e POSTGRES_DATABASE=dbname -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -e POSTGRES_HOST=localhost mccarthysean/timescaledb_backup_s3:12
 ```
 
 See the docker-compose.example.yml file for typical usage, like below:
@@ -41,13 +41,6 @@ See the docker-compose.example.yml file for typical usage, like below:
       POSTGRES_RESTORE_EXTRA_OPTS: '--format custom --create --clean --if-exists --jobs 2'
     networks:
       traefik-public:
-    healthcheck:
-      # Periodically check if PostgreSQL is ready, for Docker status reporting
-      # NOTE: this only works on PostgreSQL version 12, not 11
-      test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 60s
-      timeout: 5s
-      retries: 5
     deploy:
       placement:
         constraints:
@@ -66,14 +59,14 @@ AWS_SECRET_ACCESS_KEY=password
 AWS_DEFAULT_REGION=us-west-2
 
 # For the Postgres/TimescaleDB init/default setup.
-PGHOST=timescale # the docker-compose.example.yml file specifies this as timescale
-PGPORT=5432
-PGDATABASE=postgres
+POSTGRES_HOST=timescale # the docker-compose.example.yml file specifies this as timescale
+POSTGRES_PORT=5432
+POSTGRES_DATABASE=postgres
 PGDATA=/var/lib/postgresql/data
-PGUSER=postgres
+POSTGRES_USER=postgres
 
-# PGPASSWORD is for connecting to an existing database (the backup container needs this)
-PGPASSWORD=password
+# POSTGRES_PASSWORD is for connecting to an existing database (the backup container needs this)
+POSTGRES_PASSWORD=password
 
 # POSTGRES_PASSWORD initializes the database password if we're setting up a brand new TimescaleDB container/volume
 POSTGRES_PASSWORD=password
