@@ -61,6 +61,8 @@ ENV EDITOR nano
 # backup.sh actually runs the backup, and then uploads it to an AWS S3 bucket
 COPY backup.sh backup.sh
 COPY backup_ts.sh backup_ts.sh
+# download_backup_from_AWS_S3.sh will download a file from AWS S3
+COPY download_backup_from_AWS_S3.sh download_backup_from_AWS_S3.sh
 # restore.sh will restore a database from a backup file,
 # which has been downloaded from AWS S3 and renamed "postgres.bak"
 COPY restore.sh restore.sh
