@@ -71,19 +71,15 @@ if [ "${POSTGRES_PASSWORD}" = "**None**" ]; then
 fi
 
 
-echo "Creating dump of db '${POSTGRES_DATABASE}' from host '${POSTGRES_HOST}' to file '${POSTGRES_DATABASE}.bak'..."
+echo "Creating ts-dump from host '${POSTGRES_HOST}' to directory /ts_dump..."
+# First remove the existing folder, if there is one
+rm -rf /ts_dump
+ts-dump --db-URI postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/$POSTGRES_DATABASE --dump-dir /ts_dump
 
-# pg_dump [connection-option...] [option...] [dbname]
-# --dbname is equivalent to specifying dbname as the first non-option argument on the command line
-# Piping it to gzip is not significantly better than just using --format custom, which is already compressed
-# (e.g. adding gzip shrinks it from 505 MB to 500 MB)
-# pg_dump -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER $POSTGRES_BACKUP_EXTRA_OPTS --dbname $POSTGRES_DATABASE | gzip > ${POSTGRES_DATABASE}.gz
-pg_dump -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER $POSTGRES_BACKUP_EXTRA_OPTS --dbname $POSTGRES_DATABASE --file ${POSTGRES_DATABASE}.bak
+echo "tar and gzip the files in the /ts_dump folder..."
+tar -zcvf ts_dump.tar.gz /ts_dump
 
-echo "Uploading dump to bucket '$S3_BUCKET'"
+echo "Uploading ts_dump.tar.gz to bucket '$S3_BUCKET'"
+cat ts_dump.tar.gz | aws $AWS_ARGS s3 cp - s3://$S3_BUCKET/$S3_PREFIX/ts_dump_$(date +"%Y-%m-%dT%H:%M:%SZ").tar.gz || exit 2
 
-# cat dump.sql.gz | aws $AWS_ARGS s3 cp - s3://$S3_BUCKET/$S3_PREFIX/${POSTGRES_DATABASE}_$(date +"%Y-%m-%dT%H:%M:%SZ").sql.gz || exit 2
-# cat ${POSTGRES_DATABASE}.sql | aws $AWS_ARGS s3 cp - s3://$S3_BUCKET/$S3_PREFIX/${POSTGRES_DATABASE}_$(date +"%Y-%m-%dT%H:%M:%SZ").sql || exit 2
-cat ${POSTGRES_DATABASE}.bak | aws $AWS_ARGS s3 cp - s3://$S3_BUCKET/$S3_PREFIX/${POSTGRES_DATABASE}_$(date +"%Y-%m-%dT%H:%M:%SZ").bak || exit 2
-
-echo "SQL backup uploaded successfully"
+echo "SQL backup ts_dump.tar.gz uploaded to AWS S3 bucket '$S3_BUCKET' successfully!"

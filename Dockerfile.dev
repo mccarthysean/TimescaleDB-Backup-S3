@@ -60,18 +60,16 @@ ENV EDITOR nano
 # Add a few more files to the container
 # backup.sh actually runs the backup, and then uploads it to an AWS S3 bucket
 COPY backup.sh backup.sh
-COPY backup_ts.sh backup_ts.sh
 # download_backup_from_AWS_S3.sh will download a file from AWS S3
 COPY download_backup_from_AWS_S3.sh download_backup_from_AWS_S3.sh
 # restore.sh will restore a database from a backup file,
 # which has been downloaded from AWS S3 and renamed "postgres.bak"
 COPY restore.sh restore.sh
-COPY restore_ts.sh restore_ts.sh
 
 # run_or_schedule_backup.sh schedules the backup with cron
 COPY run_or_schedule_backup.sh run_or_schedule_backup.sh
 
 RUN chmod +x run_or_schedule_backup.sh && \
-    chmod +x backup_ts.sh && \
+    chmod +x backup.sh && \
     chmod +x download_backup_from_AWS_S3.sh && \
-    chmod +x restore_ts.sh
+    chmod +x restore.sh

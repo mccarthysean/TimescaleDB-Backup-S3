@@ -32,22 +32,16 @@ if [ "${POSTGRES_PASSWORD}" = "**None**" ]; then
   exit 1
 fi
 
+echo "Extracting /ts_dump directory and its contents from ts_dump.tar.gz..."
+# First remove the existing folder, if there is one
+rm -rf /ts_dump
+tar -zxvf ts_dump.tar.gz
 
-echo "Restoring dump of db '${POSTGRES_DATABASE}' to host '${POSTGRES_HOST}' from source file '${POSTGRES_DATABASE}.bak'..."
+echo "Restoring dump of database to host '${POSTGRES_HOST}' from source file 'ts_dump.tar.gz'..."
+echo "Please ensure the database is completely empty; otherwise the following might not work..."
+sleep 2
+echo ""
+ts-restore --db-URI postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/$POSTGRES_DATABASE --dump-dir /ts_dump
 
-# Restoring data from a backup currently requires some additional procedures, which need to be run from psql
-# psql [option...] [dbname [username]]
-# --dbname is equivalent to specifying dbname as the first non-option argument on the command line
-psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --dbname $POSTGRES_DATABASE --command 'CREATE EXTENSION IF NOT EXISTS timescaledb WITH SCHEMA public;'
-psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --dbname $POSTGRES_DATABASE --command 'SELECT timescaledb_pre_restore();'
-
-# pg_restore [connection-option...] [option...] [filename]
-# Added || true so the following line returns an error code of 0, since we need the line after this one to run regardless
-pg_restore -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --dbname $POSTGRES_DATABASE $POSTGRES_RESTORE_EXTRA_OPTS ${POSTGRES_DATABASE}.bak || true
-
-# Restoring data from a backup currently requires some additional procedures, which need to be run from psql
-# psql [option...] [dbname [username]]
-# --dbname is equivalent to specifying dbname as the first non-option argument on the command line
-psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --dbname $POSTGRES_DATABASE --command 'SELECT timescaledb_post_restore();'
-
-echo "SQL backup restored successfully"
+echo ""
+echo "SQL backup restored successfully!"
