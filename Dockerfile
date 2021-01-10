@@ -73,6 +73,7 @@ COPY run_or_schedule_backup.sh run_or_schedule_backup.sh
 
 RUN chmod +x run_or_schedule_backup.sh && \
     chmod +x backup_ts.sh && \
+    chmod +x download_backup_from_AWS_S3.sh && \
     chmod +x restore_ts.sh
 
 # Schedule crontab when the container starts.
