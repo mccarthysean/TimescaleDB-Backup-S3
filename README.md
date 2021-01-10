@@ -12,7 +12,7 @@ See the docker-compose.example.yml file for typical usage, like below:
 ```yaml
   backup:
     # Choose 11 as the tag for TimescaleDB/PostgreSQL version 11, instead of 12
-    image: mccarthysean/timescaledb_backup_s3:12
+    image: mccarthysean/timescaledb_backup_s3:latest-12
     env_file: .env
     environment:
       # Schedule this backup job to backup and upload to AWS S3 every so often
