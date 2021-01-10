@@ -1,5 +1,15 @@
 # TimescaleDB-Backup-S3
-For creating a Docker image that runs alongside the TimescaleDB container. It uses pg_dump to back up the container periodically, and then uploads the backup to an AWS S3 bucket
+For creating a Docker container that runs alongside the TimescaleDB container. It uses `ts-dump` to back up the container periodically, and then uploads the backup to an AWS S3 bucket.
+
+The container also contains a `restore.sh` file which uses `ts-restore` to restore the backup. 
+
+For even more convenience, there's also a `download_backup_from_AWS_S3.sh` script to download a backup file from your AWS S3 bucket, prior to restoring it.
+
+The `ts-dump` and `ts-restore` binaries come from [this official TimescaleDB repo](https://github.com/timescale/timescaledb-backup). Backing up and restoring TimescaleDB databases is not as easy as regular PostgreSQL databases because of all the partitions for the hyper-tables, and the version of the TimescaleDB extension, etc.
+
+I hope this Docker container makes your life a bit easier.
+
+-Sean
 
 ## Usage
 
@@ -64,11 +74,6 @@ POSTGRES_PORT=5432
 POSTGRES_DATABASE=postgres
 PGDATA=/var/lib/postgresql/data
 POSTGRES_USER=postgres
-
-# POSTGRES_PASSWORD is for connecting to an existing database (the backup container needs this)
-POSTGRES_PASSWORD=password
-
-# POSTGRES_PASSWORD initializes the database password if we're setting up a brand new TimescaleDB container/volume
 POSTGRES_PASSWORD=password
 ```
 ### Automatic Periodic Backups
