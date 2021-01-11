@@ -54,7 +54,7 @@ See the docker-compose.example.yml file for typical usage, like below:
       traefik-public:
     healthcheck:
       # Periodically check if PostgreSQL is ready, for Docker status reporting
-      test: ["ping", "-c", 1, "timescale"]
+      test: ["ping", "-c", "1", "timescale"]
       interval: 60s
       timeout: 5s
       retries: 5

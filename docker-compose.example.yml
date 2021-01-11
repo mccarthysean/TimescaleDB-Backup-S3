@@ -59,7 +59,7 @@ services:
     healthcheck:
       # Periodically check if PostgreSQL is ready in the other container,
       # for Docker status reporting. If we can't reach it, we can't back it up.
-      test: ["ping", "timescale"]
+      test: ["ping", "-c", "1", "timescale"]
       interval: 60s
       timeout: 5s
       retries: 5
