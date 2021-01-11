@@ -52,6 +52,12 @@ See the docker-compose.example.yml file for typical usage, like below:
       S3_PREFIX: daily-backups
     networks:
       traefik-public:
+    healthcheck:
+      # Periodically check if PostgreSQL is ready, for Docker status reporting
+      test: ["ping", "-c", 1, "timescale"]
+      interval: 60s
+      timeout: 5s
+      retries: 5
     deploy:
       placement:
         constraints:
