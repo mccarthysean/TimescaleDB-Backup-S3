@@ -1,7 +1,6 @@
 version: '3.7'
 services:
   timescale:
-    # Name of the image and tag the Dockerfile creates
     image: timescale/timescaledb:latest-pg12
     volumes: 
       - type: volume
@@ -42,7 +41,7 @@ services:
     image: mccarthysean/timescaledb_backup_s3:latest-12
     env_file: .env
     environment:
-      # Schedule this backup job to backup and upload to AWS S3 every so often
+      # cron-schedule this backup job to backup and upload to AWS S3 every so often
       # * * * * * command(s)
       # - - - - -
       # | | | | |
@@ -56,19 +55,6 @@ services:
       S3_BUCKET: backup-timescaledb
       # S3_PREFIX creates a sub-folder in the above AWS S3 bucket
       S3_PREFIX: daily-backups
-      # EXTRA OPTIONS #######################################################################
-      # --format custom outputs to a custom-format archive suitable for input into pg_restore
-      # Together with the directory output format, this is the most flexible output format
-      # in that it allows manual selection and reordering of archived items during restore.
-      # This format is also compressed by default
-      # "--create --clean" drops the database and recreates it
-      # --if-exists adds "IF EXISTS" to the SQL where appropriate
-      # --blobs includes large objects in the dump
-      # --disable-triggers instructs pg_restore to execute commands to temporarily disable triggers
-      # on the target tables while the data is reloaded. Use this if you have referential integrity
-      # checks or other triggers on the tables that you do not want to invoke during data reload
-      POSTGRES_BACKUP_EXTRA_OPTS: '--format custom --create --clean --if-exists --blobs'
-      POSTGRES_RESTORE_EXTRA_OPTS: '--format custom --create --clean --if-exists --jobs 2 --disable-triggers'
     networks:
       traefik-public:
     healthcheck:

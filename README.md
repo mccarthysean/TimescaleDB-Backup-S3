@@ -15,7 +15,17 @@ I hope this Docker container makes your life a bit easier.
 
 Docker:
 ```sh
-$ docker run -e AWS_ACCESS_KEY_ID=key -e AWS_SECRET_ACCESS_KEY=secret -e AWS_BUCKET=my-bucket -e AWS_DEFAULT_REGION=us-west-2 -e S3_PREFIX=subfolder -e POSTGRES_DATABASE=dbname -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -e POSTGRES_HOST=localhost mccarthysean/timescaledb_backup_s3:12
+$ docker run \
+  -e AWS_ACCESS_KEY_ID=key \
+  -e AWS_SECRET_ACCESS_KEY=secret \
+  -e AWS_DEFAULT_REGION=us-west-2 \
+  -e AWS_BUCKET=my-bucket \
+  -e S3_PREFIX=subfolder \
+  -e POSTGRES_HOST=localhost \
+  -e POSTGRES_USER=user \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DATABASE=dbname \
+  mccarthysean/timescaledb_backup_s3:latest-12
 ```
 
 See the docker-compose.example.yml file for typical usage, like below:
@@ -25,7 +35,7 @@ See the docker-compose.example.yml file for typical usage, like below:
     image: mccarthysean/timescaledb_backup_s3:latest-12
     env_file: .env
     environment:
-      # Schedule this backup job to backup and upload to AWS S3 every so often
+      # cron-schedule this backup job to backup and upload to AWS S3 every so often
       # * * * * * command(s)
       # - - - - -
       # | | | | |
@@ -39,16 +49,6 @@ See the docker-compose.example.yml file for typical usage, like below:
       S3_BUCKET: backup-timescaledb
       # S3_PREFIX creates a sub-folder in the above AWS S3 bucket
       S3_PREFIX: daily-backups
-      # EXTRA OPTIONS #######################################################################
-      # --format custom outputs to a custom-format archive suitable for input into pg_restore
-      # Together with the directory output format, this is the most flexible output format
-      # in that it allows manual selection and reordering of archived items during restore.
-      # This format is also compressed by default
-      # "--create --clean" drops the database and recreates it
-      # --if-exists adds "IF EXISTS" to the SQL where appropriate
-      # --blobs includes large objects in the dump
-      POSTGRES_BACKUP_EXTRA_OPTS: '--format custom --create --clean --if-exists --blobs'
-      POSTGRES_RESTORE_EXTRA_OPTS: '--format custom --create --clean --if-exists --jobs 2'
     networks:
       traefik-public:
     deploy:
