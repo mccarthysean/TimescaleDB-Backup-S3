@@ -1,10 +1,6 @@
 #! /bin/sh
 
-# This file performs the backup operation with the command:
-# pg_dump -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER $POSTGRES_BACKUP_EXTRA_OPTS --file ${POSTGRES_DATABASE}.bak --dbname $POSTGRES_DATABASE
-
-# Then it uploads the ${POSTGRES_DATABASE}.bak file to and AWS S3 bucket with the command:
-# cat ${POSTGRES_DATABASE}.bak | aws $AWS_ARGS s3 cp - s3://$S3_BUCKET/$S3_PREFIX/${POSTGRES_DATABASE}_$(date +"%Y-%m-%dT%H:%M:%SZ").bak || exit 2
+# This file performs the backup operation. Then it uploads the file to an AWS S3 bucket with the command.
 
 # Ignore the warning "pg_dump: NOTICE:  hypertable data are in the chunks, no data will be copied"
 # See the following explanation:
