@@ -19,12 +19,13 @@ $ docker run \
   -e AWS_ACCESS_KEY_ID=key \
   -e AWS_SECRET_ACCESS_KEY=secret \
   -e AWS_DEFAULT_REGION=us-west-2 \
-  -e AWS_BUCKET=my-bucket \
+  -e S3_BUCKET=my-bucket \
   -e S3_PREFIX=subfolder \
   -e POSTGRES_HOST=localhost \
   -e POSTGRES_USER=user \
   -e POSTGRES_PASSWORD=password \
   -e POSTGRES_DATABASE=dbname \
+  -e SCHEDULE='0 7 * * *' \
   mccarthysean/timescaledb_backup_s3:latest-12
 ```
 
@@ -69,10 +70,10 @@ AWS_SECRET_ACCESS_KEY=password
 AWS_DEFAULT_REGION=us-west-2
 
 # For the Postgres/TimescaleDB init/default setup.
-POSTGRES_HOST=timescale # the docker-compose.example.yml file specifies this as timescale
+# the docker-compose.example.yml file specifies the host as "timescale"
+POSTGRES_HOST=timescale
 POSTGRES_PORT=5432
 POSTGRES_DATABASE=postgres
-PGDATA=/var/lib/postgresql/data
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 ```
