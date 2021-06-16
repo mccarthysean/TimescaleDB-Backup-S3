@@ -67,9 +67,10 @@ if [ "${POSTGRES_PASSWORD}" = "**None**" ]; then
 fi
 
 
-echo "Creating ts-dump from host '${POSTGRES_HOST}' to directory /ts_dump..."
 # First remove the existing folder, if there is one
+echo "Removing existing files and folders in /ts_dump folder..."
 rm -rf /ts_dump
+echo "Creating ts-dump from host '${POSTGRES_HOST}' to directory /ts_dump..."
 ts-dump --db-URI postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/$POSTGRES_DATABASE --dump-dir /ts_dump
 
 echo "tar and gzip the files in the /ts_dump folder..."
