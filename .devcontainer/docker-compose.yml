@@ -10,7 +10,7 @@ services:
       context: ..
       dockerfile: Dockerfile.dev
       args:
-        VERSION: 12
+        VERSION: 13
     env_file: ../.env
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity

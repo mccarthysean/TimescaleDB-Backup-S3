@@ -3,12 +3,13 @@
 # This file builds the images and pushes them to Docker Hub.
 # Set the TAG_VERSION environment variable below
 
-TAG_VERSION=1.0.7
+TAG_VERSION=1.0.8
 
-PS3='Enter 1-2 for PostgreSQL/TimescaleDB version to build and push to Docker Hub: '
+PS3='Enter 1-3 for PostgreSQL/TimescaleDB version to build and push to Docker Hub: '
 options=(
     "PostgreSQL/TimescaleDB Version 11"
     "PostgreSQL/TimescaleDB Version 12"
+    "PostgreSQL/TimescaleDB Version 13"
 )
 select opt in "${options[@]}"
 do
@@ -19,7 +20,10 @@ do
         "PostgreSQL/TimescaleDB Version 12")
             export VERSION=12
             break;;
-        *) 
+        "PostgreSQL/TimescaleDB Version 13")
+            export VERSION=13
+            break;;
+        *)
             echo "invalid option $REPLY"
             break;;
     esac
