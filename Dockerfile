@@ -24,22 +24,6 @@ ENV PATH /usr/local/go/bin:$PATH
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 
-# Download and build the ts-dump and ts-restore Golang packages
-RUN go get -u github.com/timescale/timescaledb-backup/ || true && \
-    # cd to the download directory
-    # cd /go/pkg/mod/github.com/timescale/timescaledb-backup@v0.0.0-20210107191149-ff6031c44f8b && \
-    cd /go/pkg/mod/github.com/timescale/timescaledb-backup@v0.0.0-20210311165201-c4343c888b98 && \
-    # Replace ts-dump-restore reference with timescaledb-backup in the go.mod file
-    sed -i 's/github.com\/timescale\/ts-dump-restore/github.com\/timescale\/timescaledb-backup/g' go.mod && \
-    # Build ts-dump first
-    cd cmd/ts-dump && \
-    go mod tidy && \
-    go build -o /usr/local/go/bin/ts-dump && \
-    # Build ts-restore second
-    cd ../ts-restore && \
-    go mod tidy && \
-    go build -o /usr/local/go/bin/ts-restore
-
 # If the above build process doesn't seem to get the right version, download the Linux binaries instead, manually
 RUN cd /usr/local/go/bin && \
     wget https://github.com/timescale/timescaledb-backup/releases/download/0.1.1/ts-dump_0.1.1_Linux_x86_64 && \
@@ -49,9 +33,6 @@ RUN cd /usr/local/go/bin && \
     cat checksums.txt && \
     sha256sum ts-dump_0.1.1_Linux_x86_64 && \
     sha256sum ts-restore_0.1.1_Linux_x86_64 && \
-    # Rename the previously-built files
-    mv ts-dump ts-dump-built-with-go && \
-    mv ts-restore ts-restore-built-with-go && \
     # Rename the downloaded binaries to be the default binaries with generic names
     mv ts-dump_0.1.1_Linux_x86_64 ts-dump && \
     mv ts-restore_0.1.1_Linux_x86_64 ts-restore && \

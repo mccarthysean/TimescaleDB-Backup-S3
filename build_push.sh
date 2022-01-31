@@ -10,6 +10,7 @@ options=(
     "PostgreSQL/TimescaleDB Version 11"
     "PostgreSQL/TimescaleDB Version 12"
     "PostgreSQL/TimescaleDB Version 13"
+    "PostgreSQL/TimescaleDB Version 14"
 )
 select opt in "${options[@]}"
 do
@@ -22,6 +23,9 @@ do
             break;;
         "PostgreSQL/TimescaleDB Version 13")
             export VERSION=13
+            break;;
+        "PostgreSQL/TimescaleDB Version 14")
+            export VERSION=14
             break;;
         *)
             echo "invalid option $REPLY"
