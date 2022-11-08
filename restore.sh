@@ -8,8 +8,8 @@ set -o pipefail
 
 echo ""
 echo "Enter the name of the backup file previously downloaded from bucket '$S3_BUCKET' and subfolder '$S3_PREFIX': "  
-read backup_name
-echo "You've entered $backup_name. That will be used when we un-tar the file."
+read BACKUP_FILE
+echo "You've entered $BACKUP_FILE. That will be used when we un-tar the file."
 
 if [ "${POSTGRES_DATABASE}" = "**None**" ]; then
   echo "You need to set the POSTGRES_DATABASE environment variable."
@@ -36,28 +36,64 @@ if [ "${POSTGRES_PASSWORD}" = "**None**" ]; then
   exit 1
 fi
 
-# First remove the existing folder, if there is one
+# BACKUP_FOLDER=/ts_dump
+
+# # First remove the existing folder, if there is one
+# echo ""
+# echo "Removing existing $BACKUP_FOLDER directory if it exists..."
+# rm -rf $BACKUP_FOLDER
+
+# echo ""
+# echo "Making new $BACKUP_FOLDER directory..."
+# mkdir -p $BACKUP_FOLDER
+
+# echo ""
+# echo "Extracting to $BACKUP_FOLDER directory and its contents from $BACKUP_FILE..."
+# # tar -zxvf $BACKUP_FILE -C $BACKUP_FOLDER
+# # No need to add "-C $BACKUP_FOLDER" since that happens automatically
+# tar -zxvf $BACKUP_FILE
+
+# echo "Creating ts-dump from host '${POSTGRES_HOST}' to directory $BACKUP_FOLDER..."
+# ts-dump --db-URI postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/$POSTGRES_DATABASE --dump-dir $BACKUP_FOLDER
+
+echo "whoami (should be 'root' I think...)?" $(whoami)
+PGPASS_FILE=~/.pgpass
+touch $PGPASS_FILE
+echo "${POSTGRES_HOST}:${POSTGRES_PORT}:${POSTGRES_DATABASE}:${POSTGRES_USER}:${POSTGRES_PASSWORD}" > $PGPASS_FILE
+# set the file's mode to 0600. Otherwise, it will be ignored.
+chmod 600 $PGPASS_FILE
+
+# https://docs.timescale.com/timescaledb/latest/how-to-guides/backup-and-restore/pg-dump-and-restore/
 echo ""
-echo "Removing existing /ts_dump directory if it exists..."
-rm -rf /ts_dump
+echo "Restoring dump of database to host '${POSTGRES_HOST}' from source file $BACKUP_FILE..."
+# echo ""
+# echo "Please ensure the database '$POSTGRES_DATABASE' is already created, but completely empty; otherwise the following might not work..."
+echo ""
+echo "Creating database '$POSTGRES_DATABASE' if it doesn't already exist..."
+psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -tc "SELECT 1 FROM pg_database WHERE datname = '$POSTGRES_DATABASE'" | grep -q 1 || psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -c "CREATE DATABASE $POSTGRES_DATABASE"
 
 echo ""
-echo "Making new /ts_dump directory..."
-mkdir -p /ts_dump
+echo "Creating extension 'timescaledb' if it doesn't already exist..."
+psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -d $POSTGRES_DATABASE -c "CREATE EXTENSION IF NOT EXISTS timescaledb;"
 
 echo ""
-echo "Extracting to /ts_dump directory and its contents from $backup_name..."
-# tar -zxvf $backup_name -C /ts_dump
-# No need to add "-C /ts_dump" since that happens automatically
-tar -zxvf $backup_name
+echo "Running timescaledb_post_restore() to put the database $POSTGRES_DATABASE in the right state for restoring..."
+echo "SELECT timescaledb_pre_restore();"
+psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -d $POSTGRES_DATABASE -c "SELECT timescaledb_pre_restore();"
+sleep 5
 
 echo ""
-echo "Restoring dump of database to host '${POSTGRES_HOST}' from source directory /ts_dump..."
+echo "Restoring database now..."
+# ts-restore --db-URI postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/$POSTGRES_DATABASE --dump-dir $BACKUP_FOLDER
+# WARNING: Do not use the pg_restore command with -j option. This option does not correctly restore the Timescale catalogs.
+pg_restore -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -Fc -d $POSTGRES_DATABASE $BACKUP_FILE
+
 echo ""
-echo "Please ensure the database '$POSTGRES_DATABASE' is already created, but completely empty; otherwise the following might not work..."
+echo "Running timescaledb_post_restore() to return the database $POSTGRES_DATABASE to normal operations..."
+echo "SELECT timescaledb_post_restore();"
+psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -d $POSTGRES_DATABASE -c "SELECT timescaledb_post_restore();"
+
 sleep 5
 echo ""
-ts-restore --db-URI postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/$POSTGRES_DATABASE --dump-dir /ts_dump
-
-echo ""
 echo "SQL backup restored successfully!"
+exit 0
