@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   timescale:
-    image: timescale/timescaledb:latest-pg12
+    image: timescale/timescaledb-ha:pg13.8-ts2.8.1-latest
     volumes: 
       - type: volume
         source: timescale-db # the volume name
@@ -22,7 +22,7 @@ services:
       traefik-public:
     healthcheck:
       # Periodically check if PostgreSQL is ready, for Docker status reporting
-      test: ["ping", "-c", 1, "timescale"]
+      test: ["ping", "-c", "1", "timescale"]
       interval: 60s
       timeout: 5s
       retries: 5
@@ -36,8 +36,8 @@ services:
         condition: on-failure
 
   backup:
-    # Choose 11 as the tag for TimescaleDB/PostgreSQL version 11, instead of 12
-    image: mccarthysean/timescaledb_backup_s3:latest-12
+    # If you're using PostgreSQL 14, choose 14 as the tag instead of 13
+    image: mccarthysean/timescaledb_backup_s3:13-1.0.10
     env_file: .env
     environment:
       # cron-schedule this backup job to backup and upload to AWS S3 every so often
