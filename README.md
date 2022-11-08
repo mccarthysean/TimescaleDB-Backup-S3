@@ -1,11 +1,9 @@
 # TimescaleDB-Backup-S3
-For creating a Docker container that runs alongside the TimescaleDB container. It uses `ts-dump` to back up the container periodically, and then uploads the backup to an AWS S3 bucket.
+For creating a Docker container that runs alongside the TimescaleDB container. It uses `pg_dump` to back up the container periodically, and then uploads the backup to an AWS S3 bucket.
 
-The container also contains a `restore.sh` file which uses `ts-restore` to restore the backup. 
+The container also contains a `restore.sh` file which uses `pg_restore` to restore the backup.
 
 For even more convenience, there's also a `download_backup_from_AWS_S3.sh` script to download a backup file from your AWS S3 bucket, prior to restoring it.
-
-The `ts-dump` and `ts-restore` binaries come from [this official TimescaleDB repo](https://github.com/timescale/timescaledb-backup). Backing up and restoring TimescaleDB databases is not as easy as regular PostgreSQL databases because of all the partitions for the hyper-tables, and the version of the TimescaleDB extension, etc.
 
 I hope this Docker container makes your life a bit easier.
 
@@ -26,14 +24,26 @@ $ docker run \
   -e POSTGRES_PASSWORD=password \
   -e POSTGRES_DATABASE=dbname \
   -e SCHEDULE='0 7 * * *' \
-  mccarthysean/timescaledb_backup_s3:latest-12
+  mccarthysean/timescaledb_backup_s3:latest-14
 ```
 
 See the docker-compose.example.yml file for typical usage, like below:
 ```yaml
+  timescale:
+    image: timescale/timescaledb-ha:pg13.8-ts2.8.1-latest
+    volumes: 
+      - type: volume
+        source: timescale-db-pg13
+        # the location in the container where the data are stored
+        target: /var/lib/postgresql/data
+        read_only: false
+    env_file: .env
+    ports:
+      - 0.0.0.0:5432:5432
+
   backup:
-    # Choose 11 as the tag for TimescaleDB/PostgreSQL version 11, instead of 12
-    image: mccarthysean/timescaledb_backup_s3:latest-12
+    # image: mccarthysean/timescaledb_backup_s3:13-1.0.10
+    image: mccarthysean/timescaledb_backup_s3:14-1.0.10
     env_file: .env
     environment:
       # cron-schedule this backup job to backup and upload to AWS S3 every so often
