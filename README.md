@@ -1,6 +1,9 @@
 # TimescaleDB-Backup-S3
 For creating a Docker container that runs alongside the TimescaleDB container. It uses `pg_dump` to back up the container periodically, and then uploads the backup to an AWS S3 bucket.
 
+Docker images here:
+<https://hub.docker.com/r/mccarthysean/timescaledb_backup_s3/tags>
+
 The container also contains a `restore.sh` file which uses `pg_restore` to restore the backup.
 
 For even more convenience, there's also a `download_backup_from_AWS_S3.sh` script to download a backup file from your AWS S3 bucket, prior to restoring it.
