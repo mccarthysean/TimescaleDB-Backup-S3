@@ -1,0 +1,24 @@
+# This tells Gitlab to run our linting services first
+# These are the repos from which we would like to pull our hooks.
+repos:
+# # - repo: https://github.com/psf/black
+# - repo: https://github.com/ambv/black
+#   rev: 22.3.0
+#   hooks:
+#   # Style our code nicely
+#   - id: black
+#     language_version: Python3.6
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  # rev: 1.2.3
+  rev: v4.4.0
+  # rev: 2.20.1
+  hooks:
+  # Check code for formatting issues
+  # - id: flake8
+  - id: check-yaml
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+# - repo: https://github.com/psf/black
+#   rev: 23.9.1
+#   hooks:
+#   - id: black

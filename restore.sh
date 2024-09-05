@@ -57,11 +57,14 @@ fi
 # ts-dump --db-URI postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/$POSTGRES_DATABASE --dump-dir $BACKUP_FOLDER
 
 echo "whoami (should be 'root' I think...)?" $(whoami)
-PGPASS_FILE=~/.pgpass
-touch $PGPASS_FILE
-echo "${POSTGRES_HOST}:${POSTGRES_PORT}:${POSTGRES_DATABASE}:${POSTGRES_USER}:${POSTGRES_PASSWORD}" > $PGPASS_FILE
-# set the file's mode to 0600. Otherwise, it will be ignored.
-chmod 600 $PGPASS_FILE
+# PGPASS_FILE=~/.pgpass
+# touch $PGPASS_FILE
+# echo "${POSTGRES_HOST}:${POSTGRES_PORT}:${POSTGRES_DATABASE}:${POSTGRES_USER}:${POSTGRES_PASSWORD}" > $PGPASS_FILE
+# # set the file's mode to 0600. Otherwise, it will be ignored.
+# chmod 600 $PGPASS_FILE
+
+# Set PGPASSWORD environment variable, which psql will use to connect to the database
+export PGPASSWORD="${POSTGRES_PASSWORD}"
 
 # https://docs.timescale.com/timescaledb/latest/how-to-guides/backup-and-restore/pg-dump-and-restore/
 echo ""
@@ -70,28 +73,28 @@ echo "Restoring dump of database to host '${POSTGRES_HOST}' from source file $BA
 # echo "Please ensure the database '$POSTGRES_DATABASE' is already created, but completely empty; otherwise the following might not work..."
 echo ""
 echo "Creating database '$POSTGRES_DATABASE' if it doesn't already exist..."
-psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -tc "SELECT 1 FROM pg_database WHERE datname = '$POSTGRES_DATABASE'" | grep -q 1 || psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -c "CREATE DATABASE $POSTGRES_DATABASE"
+psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -tc "SELECT 1 FROM pg_database WHERE datname = '$POSTGRES_DATABASE'" | grep -q 1 || psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -c "CREATE DATABASE $POSTGRES_DATABASE"
 
 echo ""
 echo "Creating extension 'timescaledb' if it doesn't already exist..."
-psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -d $POSTGRES_DATABASE -c "CREATE EXTENSION IF NOT EXISTS timescaledb;"
+psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "CREATE EXTENSION IF NOT EXISTS timescaledb;"
 
 echo ""
 echo "Running timescaledb_post_restore() to put the database $POSTGRES_DATABASE in the right state for restoring..."
 echo "SELECT timescaledb_pre_restore();"
-psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -d $POSTGRES_DATABASE -c "SELECT timescaledb_pre_restore();"
+psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT timescaledb_pre_restore();"
 sleep 5
 
 echo ""
 echo "Restoring database now..."
 # ts-restore --db-URI postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/$POSTGRES_DATABASE --dump-dir $BACKUP_FOLDER
 # WARNING: Do not use the pg_restore command with -j option. This option does not correctly restore the Timescale catalogs.
-pg_restore -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -Fc -d $POSTGRES_DATABASE $BACKUP_FILE
+pg_restore -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -Fc -d $POSTGRES_DATABASE $BACKUP_FILE
 
 echo ""
 echo "Running timescaledb_post_restore() to return the database $POSTGRES_DATABASE to normal operations..."
 echo "SELECT timescaledb_post_restore();"
-psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER --no-password -d $POSTGRES_DATABASE -c "SELECT timescaledb_post_restore();"
+psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT timescaledb_post_restore();"
 
 sleep 5
 echo ""
