@@ -12,6 +12,7 @@ read BACKUP_FILE
 echo "You've entered $BACKUP_FILE. That will be used when we un-tar the file."
 
 if [ "${POSTGRES_DATABASE}" = "**None**" ]; then
+  echo ""
   echo "You need to set the POSTGRES_DATABASE environment variable."
   exit 1
 fi
@@ -21,17 +22,20 @@ if [ "${POSTGRES_HOST}" = "**None**" ]; then
     POSTGRES_HOST=$POSTGRES_PORT_5432_TCP_ADDR
     POSTGRES_PORT=$POSTGRES_PORT_5432_TCP_PORT
   else
+    echo ""
     echo "You need to set the POSTGRES_HOST environment variable."
     exit 1
   fi
 fi
 
 if [ "${POSTGRES_USER}" = "**None**" ]; then
+  echo ""
   echo "You need to set the POSTGRES_USER environment variable."
   exit 1
 fi
 
 if [ "${POSTGRES_PASSWORD}" = "**None**" ]; then
+  echo ""
   echo "You need to set the POSTGRES_PASSWORD environment variable or link to a container named POSTGRES."
   exit 1
 fi
@@ -56,6 +60,7 @@ fi
 # echo "Creating ts-dump from host '${POSTGRES_HOST}' to directory $BACKUP_FOLDER..."
 # ts-dump --db-URI postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/$POSTGRES_DATABASE --dump-dir $BACKUP_FOLDER
 
+echo ""
 echo "whoami (should be 'root' I think...)?" $(whoami)
 # PGPASS_FILE=~/.pgpass
 # touch $PGPASS_FILE
@@ -80,7 +85,7 @@ echo "Creating extension 'timescaledb' if it doesn't already exist..."
 psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "CREATE EXTENSION IF NOT EXISTS timescaledb;"
 
 echo ""
-echo "Running timescaledb_post_restore() to put the database $POSTGRES_DATABASE in the right state for restoring..."
+echo "Running timescaledb_pre_restore() to put the database $POSTGRES_DATABASE in the right state for restoring..."
 echo "SELECT timescaledb_pre_restore();"
 psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT timescaledb_pre_restore();"
 sleep 5
